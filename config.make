@@ -8,7 +8,7 @@
 #   The location of your root openFrameworks installation
 #       (default) OF_ROOT = ../../.. 
 ################################################################################
-OF_ROOT = /home/user/of_v0.11.2_linux64gcc6_release
+OF_ROOT = ../../..
 
 ################################################################################
 # PROJECT ROOT
@@ -77,7 +77,7 @@ OF_ROOT = /home/user/of_v0.11.2_linux64gcc6_release
 # incorporated directly into the final executable application binary.
 ################################################################################
 # PROJECT_LDFLAGS=-Wl,-rpath=./libs
-
+PROJECT_LDFLAGS += -latomic
 ################################################################################
 # PROJECT DEFINES
 #   Create a space-delimited list of DEFINES. The list will be converted into 

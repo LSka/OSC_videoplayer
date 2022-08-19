@@ -1,3 +1,4 @@
 ofxXmlSettings
 ofxNetwork
 ofxOsc
+ofxOMXPlayer
