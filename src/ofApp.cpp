@@ -31,7 +31,12 @@ void ofApp::setup(){
 //     player.load(videoPath);
 //     player.setLoopState(OF_LOOP_NONE);
 //     player.play();
-
+    
+    playerSettings.enableTexture = true;
+    playerSettings.enableLooping = false;
+    playerSettings.enableAudio = false;
+    
+    player.setup(playerSettings);
      
      //initialize OSC
      int oscInPort = settings.getValue("OSC:RECEIVER:PORT",6000);
@@ -40,7 +45,7 @@ void ofApp::setup(){
      senderSettings.host = settings.getValue("OSC:SENDER:HOST","192.168.1.255");
      senderSettings.port = settings.getValue("OSC:SENDER:PORT",5000);
      senderSettings.broadcast = true;
-	sender.setup(senderSettings);
+	 sender.setup(senderSettings);
      
      receiver.start();
      
@@ -49,7 +54,7 @@ void ofApp::setup(){
      m.addStringArg("ready");
      sender.sendMessage(m);
      
-
+    showInfo = false;
 }
 
 //--------------------------------------------------------------
@@ -63,23 +68,25 @@ void ofApp::update(){
             videoId = receivedMessage.getArgAsInt(0);
             string videoPath = ofToDataPath(paths[videoId],true);
             ofLog()<<"loading video #"<<videoId<<": "<<videoPath<<endl;
-            player.load(videoPath);
-            player.setLoopState(OF_LOOP_NONE);
-            if (player.isLoaded()) player.play();
+            player.loadMovie(videoPath);
             ofxOscMessage m;
-            m.setAddress("/player/playing");
+            m.setAddress("/videoplayer/playing");
             m.addIntArg(videoId);
             sender.sendMessage(m);
         }
         if (addr.compare("/videoplayer/stop") == 0){
             ofLog()<<"stopping video";
-            if (player.isPlaying()) player.stop();
+            if(player.isOpen()) player.close();
+            ofxOscMessage m;
+            m.setAddress("/videoplayer");
+            m.addStringArg("stopped");
+            sender.sendMessage(m);
         }
         if (addr.compare("/videoplayer/pause") == 0){
             ofLog()<<"pausing video";
             player.setPaused(true);
             ofxOscMessage m;
-            m.setAddress("/player/paused");
+            m.setAddress("/videoplayer/paused");
             m.addIntArg(1);
             sender.sendMessage(m);
         }
@@ -87,7 +94,7 @@ void ofApp::update(){
             ofLog()<<"resuming video";
             player.setPaused(false);
             ofxOscMessage m;
-            m.setAddress("/player/paused");
+            m.setAddress("/videoplayer/paused");
             m.addIntArg(0);
             sender.sendMessage(m);
         }
@@ -95,29 +102,44 @@ void ofApp::update(){
             ofLog()<<"reloading videos";
             loadVideos();
             ofxOscMessage m;
-            m.setAddress("/player");
+            m.setAddress("/videoplayer");
             m.addStringArg("loading");
             sender.sendMessage(m);
         }
+        if (addr.compare("/videoplayer/loop") == 0){
+            int l = receivedMessage.getArgAsInt(0);
+            switch(l){
+                case 0:{
+                    player.disableLooping();
+                    ofLog()<<"looping disabled";
+                    break;
+                }
+                case 1:{
+                    player.enableLooping();
+                    ofLog()<<"looping enabled";
+                    break;
+                }
+                default:{}
+            }
+            ofxOscMessage m;
+            m.setAddress("/videoplayer/looping");
+            m.addIntArg(l);
+            sender.sendMessage(m);
+        }
+        if (addr.compare("/videoplayer/info") == 0){
+            showInfo = receivedMessage.getArgAsBool(0);
+        }
     }
     
-
-    if (!player.getIsMovieDone()){
-        player.update();
-        done = false;
-    }
-    else if(player.getIsMovieDone() && done == false){
-        ofxOscMessage mess;
-        mess.setAddress("/player/");
-        mess.addStringArg("done");
-        sender.sendMessage(mess);
-        done = true;
-    }
 }
 
 //--------------------------------------------------------------
 void ofApp::draw(){
     player.draw(0, 0, screenWidth, screenHeight);
+    
+    if (showInfo){
+    ofDrawBitmapStringHighlight(player.getInfo(), 60, 60, ofColor(ofColor::black, 90), ofColor::yellow);
+    }
 }
 
 void ofApp::loadVideos(){
@@ -133,3 +155,4 @@ void ofApp::loadVideos(){
     }
     ofLog()<<dir.size()<<endl;
 }
+

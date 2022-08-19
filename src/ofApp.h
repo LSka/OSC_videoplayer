@@ -3,7 +3,7 @@
 #include "ofMain.h"
 #include "ofxOsc.h"
 #include "ofxXmlSettings.h"
-#include "ofxOMXPLayer"
+#include "ofxOMXPlayer.h"
 
 class ofApp : public ofBaseApp{
 
@@ -26,9 +26,10 @@ class ofApp : public ofBaseApp{
     ofImage background;
     
     vector<string> paths;
-    ofVideoPlayer player;
+    ofxOMXPlayerSettings playerSettings;
+    ofxOMXPlayer player;
     
-    bool done;
+    bool showInfo;
     
     ofDirectory dir;
 		
