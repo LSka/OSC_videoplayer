@@ -2,7 +2,7 @@
 
 //--------------------------------------------------------------
 void ofApp::setup(){
-   // ofHideCursor();
+    ofHideCursor();
     // ofSetVerticalSync(true);
      ofBackground(0);
      
@@ -37,7 +37,7 @@ void ofApp::setup(){
      int oscInPort = settings.getValue("OSC:RECEIVER:PORT",6000);
      receiver.setup(oscInPort);
      ofxOscSenderSettings senderSettings;
-     senderSettings.host = settings.getValue("OSC:SENDER:HOST","127.0.0.1");
+     senderSettings.host = settings.getValue("OSC:SENDER:HOST","192.168.1.255");
      senderSettings.port = settings.getValue("OSC:SENDER:PORT",5000);
      senderSettings.broadcast = true;
 	sender.setup(senderSettings);
