@@ -2,7 +2,7 @@
 
 //--------------------------------------------------------------
 void ofApp::setup(){
-   // ofHideCursor();
+     ofHideCursor();
     // ofSetVerticalSync(true);
      ofBackground(0);
      
@@ -18,11 +18,6 @@ void ofApp::setup(){
          ofLog()<< "unable to load settings.xml check data/ folder" << endl;
      }
      
-     //background.load(settings.getValue("BACKGROUND:IMAGE","paper.jpg"));
-     
-     // GL_REPEAT for texture wrap only works with NON-ARB textures //
-    // ofDisableArbTex();
-     //string bgTex = settings.getValue("BACKGROUND:IMAGE", "paper.jpg");
      
 
     loadVideos();
@@ -37,7 +32,7 @@ void ofApp::setup(){
      int oscInPort = settings.getValue("OSC:RECEIVER:PORT",6000);
      receiver.setup(oscInPort);
      ofxOscSenderSettings senderSettings;
-     senderSettings.host = settings.getValue("OSC:SENDER:HOST","127.0.0.1");
+     senderSettings.host = settings.getValue("OSC:SENDER:HOST","192.168.1.1");
      senderSettings.port = settings.getValue("OSC:SENDER:PORT",5000);
      senderSettings.broadcast = true;
 	sender.setup(senderSettings);
@@ -131,5 +126,5 @@ void ofApp::loadVideos(){
     for (int i = 0; i<dir.size(); i++){
         paths.push_back(dir.getPath(i));
     }
-    ofLog()<<dir.size()<<endl;
+    ofLog()<<dir.size()<<" files loaded."<<endl;
 }
