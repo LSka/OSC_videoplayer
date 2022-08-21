@@ -21,6 +21,8 @@ class ofApp : public ofBaseApp{
         
     ofxOscReceiver receiver;
     ofxOscSender sender;
+    ofxOscMessage outMessage;
+    ofxOscMessage receivedMessage;
     
     ofImage background;
     

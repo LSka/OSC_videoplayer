@@ -35,14 +35,13 @@ void ofApp::setup(){
      senderSettings.host = settings.getValue("OSC:SENDER:HOST","192.168.1.1");
      senderSettings.port = settings.getValue("OSC:SENDER:PORT",5000);
      senderSettings.broadcast = true;
-	sender.setup(senderSettings);
+	 sender.setup(senderSettings);
      
      receiver.start();
      
-     ofxOscMessage m;
-     m.setAddress("/player/init");
-     m.addStringArg("ready");
-     sender.sendMessage(m);
+     outMessage.setAddress("/player/init");
+     outMessage.addStringArg("ready");
+     sender.sendMessage(outMessage);
      
 
 }
@@ -50,7 +49,6 @@ void ofApp::setup(){
 //--------------------------------------------------------------
 void ofApp::update(){
     if (receiver.hasWaitingMessages()){
-        ofxOscMessage receivedMessage;
         receiver.getNextMessage(receivedMessage);
         string addr = receivedMessage.getAddress();
         
@@ -61,42 +59,41 @@ void ofApp::update(){
             player.load(videoPath);
             player.setLoopState(OF_LOOP_NONE);
             if (player.isLoaded()) player.play();
-            ofxOscMessage m;
-            m.setAddress("/videoplayer/playing");
-            m.addIntArg(videoId);
-            sender.sendMessage(m);
+            outMessage.setAddress("/videoplayer/playing");
+            outMessage.addIntArg(videoId);
+            sender.sendMessage(outMessage);
         }
         if (addr.compare("/videoplayer/stop") == 0){
             ofLog()<<"stopping video";
             if (player.isPlaying()) player.stop();
             ofxOscMessage m;
-            m.setAddress("/videoplayer");
-            m.addStringArg("stopped");
-            sender.sendMessage(m);
+            outMessage.setAddress("/videoplayer");
+            outMessage.addStringArg("stopped");
+            sender.sendMessage(outMessage);
         }
         if (addr.compare("/videoplayer/pause") == 0){
             ofLog()<<"pausing video";
             player.setPaused(true);
             ofxOscMessage m;
-            m.setAddress("/videoplayer/paused");
-            m.addIntArg(1);
-            sender.sendMessage(m);
+            outMessage.setAddress("/videoplayer/paused");
+            outMessage.addIntArg(1);
+            sender.sendMessage(outMessage);
         }
         if (addr.compare("/videoplayer/resume") == 0){
             ofLog()<<"resuming video";
             player.setPaused(false);
             ofxOscMessage m;
-            m.setAddress("/videoplayer/paused");
-            m.addIntArg(0);
-            sender.sendMessage(m);
+            outMessage.setAddress("/videoplayer/paused");
+            outMessage.addIntArg(0);
+            sender.sendMessage(outMessage);
         }
         if (addr.compare("/videoplayer/reload") == 0){
             ofLog()<<"reloading videos";
             loadVideos();
             ofxOscMessage m;
-            m.setAddress("/videoplayer");
-            m.addStringArg("loading");
-            sender.sendMessage(m);
+            outMessage.setAddress("/videoplayer");
+            outMessage.addStringArg("loading");
+            sender.sendMessage(outMessage);
         }
         if (addr.compare("/videoplayer/loop") == 0){
             int l = receivedMessage.getArgAsInt(0);
@@ -119,9 +116,9 @@ void ofApp::update(){
                 default:{}
             }
             ofxOscMessage m;
-            m.setAddress("/videoplayer/looping");
-            m.addIntArg(l);
-            sender.sendMessage(m);
+            outMessage.setAddress("/videoplayer/looping");
+            outMessage.addIntArg(l);
+            sender.sendMessage(outMessage);
         }
 
     }
@@ -132,10 +129,9 @@ void ofApp::update(){
         done = false;
     }
     else if(player.getIsMovieDone() && done == false){
-        ofxOscMessage mess;
-        mess.setAddress("/player/");
-        mess.addStringArg("done");
-        sender.sendMessage(mess);
+        outMessage.setAddress("/videoplayer/");
+        outMessage.addStringArg("done");
+        sender.sendMessage(outMessage);
         done = true;
     }
 }
