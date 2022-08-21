@@ -62,19 +62,23 @@ void ofApp::update(){
             player.setLoopState(OF_LOOP_NONE);
             if (player.isLoaded()) player.play();
             ofxOscMessage m;
-            m.setAddress("/player/playing");
+            m.setAddress("/videoplayer/playing");
             m.addIntArg(videoId);
             sender.sendMessage(m);
         }
         if (addr.compare("/videoplayer/stop") == 0){
             ofLog()<<"stopping video";
             if (player.isPlaying()) player.stop();
+            ofxOscMessage m;
+            m.setAddress("/videoplayer");
+            m.addStringArg("stopped");
+            sender.sendMessage(m);
         }
         if (addr.compare("/videoplayer/pause") == 0){
             ofLog()<<"pausing video";
             player.setPaused(true);
             ofxOscMessage m;
-            m.setAddress("/player/paused");
+            m.setAddress("/videoplayer/paused");
             m.addIntArg(1);
             sender.sendMessage(m);
         }
@@ -82,7 +86,7 @@ void ofApp::update(){
             ofLog()<<"resuming video";
             player.setPaused(false);
             ofxOscMessage m;
-            m.setAddress("/player/paused");
+            m.setAddress("/videoplayer/paused");
             m.addIntArg(0);
             sender.sendMessage(m);
         }
@@ -90,10 +94,36 @@ void ofApp::update(){
             ofLog()<<"reloading videos";
             loadVideos();
             ofxOscMessage m;
-            m.setAddress("/player");
+            m.setAddress("/videoplayer");
             m.addStringArg("loading");
             sender.sendMessage(m);
         }
+        if (addr.compare("/videoplayer/loop") == 0){
+            int l = receivedMessage.getArgAsInt(0);
+            switch(l){
+                case 0:{
+                    player.setLoopState(OF_LOOP_NONE);
+                    ofLog()<<"looping disabled";
+                    break;
+                }
+                case 1:{
+                    player.setLoopState(OF_LOOP_NORMAL);
+                    ofLog()<<"looping enabled";
+                    break;
+                }
+                case 2:{
+                    player.setLoopState(OF_LOOP_PALINDROME);
+                    ofLog()<<"looping enabled";
+                    break;
+                    }
+                default:{}
+            }
+            ofxOscMessage m;
+            m.setAddress("/videoplayer/looping");
+            m.addIntArg(l);
+            sender.sendMessage(m);
+        }
+
     }
     
 
