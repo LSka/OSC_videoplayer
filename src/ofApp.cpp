@@ -18,11 +18,6 @@ void ofApp::setup(){
          ofLog()<< "unable to load settings.xml check data/ folder" << endl;
      }
      
-     //background.load(settings.getValue("BACKGROUND:IMAGE","paper.jpg"));
-     
-     // GL_REPEAT for texture wrap only works with NON-ARB textures //
-    // ofDisableArbTex();
-     //string bgTex = settings.getValue("BACKGROUND:IMAGE", "paper.jpg");
      
 
     loadVideos();
@@ -35,6 +30,7 @@ void ofApp::setup(){
     playerSettings.enableTexture = true;
     playerSettings.enableLooping = false;
     playerSettings.enableAudio = false;
+    playerSettings.autoStart = false;
     
     player.setup(playerSettings);
      
@@ -69,6 +65,7 @@ void ofApp::update(){
             string videoPath = ofToDataPath(paths[videoId],true);
             ofLog()<<"loading video #"<<videoId<<": "<<videoPath<<endl;
             player.loadMovie(videoPath);
+            player.start();
             ofxOscMessage m;
             m.setAddress("/videoplayer/playing");
             m.addIntArg(videoId);
