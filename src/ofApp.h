@@ -11,7 +11,7 @@ class ofApp : public ofBaseApp{
 		void setup();
 		void update();
 		void draw();
-        void loadVideos();
+                void loadVideos();
 
     
     int screenWidth;
