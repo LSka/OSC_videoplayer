@@ -25,7 +25,7 @@ void ofApp::setup(){
     playerSettings.enableTexture = true;
     playerSettings.enableLooping = false;
     playerSettings.enableAudio = false;
-    playerSettings.autoStart = false;
+    playerSettings.listener = this;
     
     player.setup(playerSettings);
      
@@ -45,6 +45,7 @@ void ofApp::setup(){
      sender.sendMessage(outMessage);
      
     showInfo = false;
+    hasEnded = false;
 }
 
 //--------------------------------------------------------------
@@ -54,14 +55,20 @@ void ofApp::update(){
         string addr = receivedMessage.getAddress();
         
         if (addr.compare("/videoplayer/play") == 0){ //check the OSC address
-            videoId = receivedMessage.getArgAsInt(0);
-            string videoPath = ofToDataPath(paths[videoId],true);
-            ofLog()<<"loading video #"<<videoId<<": "<<videoPath<<endl;
-            player.loadMovie(videoPath);
-            player.start();
-            outMessage.setAddress("/videoplayer/playing");
-            outMessage.addIntArg(videoId);
-            sender.sendMessage(outMessage);
+            videoId = receivedMessage.getArgAsInt(0) -1;
+            videoId = ofClamp(videoId, 0, dir.size());
+            if (videoId < dir.size()){
+                string videoPath = ofToDataPath(paths[videoId],true);
+                ofLog()<<"loading video #"<<videoId<<": "<<videoPath<<endl;
+                player.loadMovie(videoPath);
+                //player.start();
+                outMessage.setAddress("/videoplayer/playing");
+                outMessage.addIntArg(videoId);
+                sender.sendMessage(outMessage);
+            }
+            else {
+                ofLog()<<"invalid cue number"<<endl;
+            }
         }
         if (addr.compare("/videoplayer/stop") == 0){
             ofLog()<<"stopping video";
@@ -119,7 +126,8 @@ void ofApp::update(){
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-    player.draw(0, 0, screenWidth, screenHeight);
+        player.draw(0, 0, screenWidth, screenHeight);
+    
     
     if (showInfo){
     ofDrawBitmapStringHighlight(player.getInfo(), 60, 60, ofColor(ofColor::black, 90), ofColor::yellow);
@@ -140,3 +148,12 @@ void ofApp::loadVideos(){
     ofLog()<<dir.size()<<endl;
 }
 
+void ofApp::onVideoEnd(ofxOMXPlayer* player){
+    ofLog()<<"video "<<videoId<<" ended"<<endl;
+    player->close();
+
+}
+
+void ofApp::onVideoLoop(ofxOMXPlayer* player){
+    
+}

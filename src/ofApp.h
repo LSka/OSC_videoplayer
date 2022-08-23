@@ -5,14 +5,15 @@
 #include "ofxXmlSettings.h"
 #include "ofxOMXPlayer.h"
 
-class ofApp : public ofBaseApp{
+class ofApp : public ofBaseApp, public ofxOMXPlayerListener{
 
 	public:
 		void setup();
 		void update();
 		void draw();
-                void loadVideos();
-
+        void loadVideos();
+        void onVideoEnd(ofxOMXPlayer* player);
+        void onVideoLoop(ofxOMXPlayer* player);
     
     int screenWidth;
     int screenHeight;
@@ -23,7 +24,7 @@ class ofApp : public ofBaseApp{
     ofxOscReceiver receiver;
     ofxOscSender sender;
     ofxOscMessage outMessage;
-    ofxOscMEssage receivedMessage;
+    ofxOscMessage receivedMessage;
     
     ofImage background;
     
@@ -32,6 +33,7 @@ class ofApp : public ofBaseApp{
     ofxOMXPlayer player;
     
     bool showInfo;
+    bool hasEnded;
     
     ofDirectory dir;
 		
