@@ -165,6 +165,16 @@ void ofApp::update(){
                 sender.sendMessage(outMessage);
             }
         }
+        if (addr.compare("/videoplayer/image/alpha") == 0){
+            float iA = receivedMessage.getArgAsFloat(0);
+            iA = ofClamp(iA,0.,1.);
+            imgAlpha = int(iA*255.);
+        }
+        if (addr.compare("/videoplayer/video/alpha") == 0){
+            float vA = receivedMessage.getArgAsFloat(0);
+            vA = ofClamp(vA,0.,1.);
+            videoAlpha = int(vA*255.);
+        }
 
     }
     
