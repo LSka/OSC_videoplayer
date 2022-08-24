@@ -45,7 +45,15 @@ void ofApp::setup(){
      sender.sendMessage(outMessage);
      
     showInfo = false;
-    hasEnded = false;
+    
+    int cOe = settings.getValue("VIDEO:CLEARONEND",0);
+    if (cOe == 1) {
+        clearOnEnd = true;
+        
+    }
+    else {
+        clearOnEnd = false;
+    }
 }
 
 //--------------------------------------------------------------
@@ -150,7 +158,9 @@ void ofApp::loadVideos(){
 
 void ofApp::onVideoEnd(ofxOMXPlayer* player){
     ofLog()<<"video "<<videoId<<" ended"<<endl;
-    player->close();
+    if (clearOnEnd){
+        player->close();
+    }
 
 }
 

@@ -33,7 +33,7 @@ class ofApp : public ofBaseApp, public ofxOMXPlayerListener{
     ofxOMXPlayer player;
     
     bool showInfo;
-    bool hasEnded;
+    bool clearOnEnd;
     
     ofDirectory dir;
 		
