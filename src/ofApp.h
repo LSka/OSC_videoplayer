@@ -24,7 +24,7 @@ class ofApp : public ofBaseApp{
     ofxOscMessage outMessage;
     ofxOscMessage receivedMessage;
     
-    ofImage background;
+    ofImage img;
     
     vector<string> paths;
     ofVideoPlayer player;
@@ -32,5 +32,6 @@ class ofApp : public ofBaseApp{
     bool done;
     
     ofDirectory dir;
+    ofDirectory imgDir;
 		
 };

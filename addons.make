@@ -1,3 +1,3 @@
-ofxXmlSettings
 ofxNetwork
 ofxOsc
+ofxXmlSettings

@@ -54,14 +54,22 @@ void ofApp::update(){
         
         if (addr.compare("/videoplayer/play") == 0){ //check the OSC address
             videoId = receivedMessage.getArgAsInt(0);
-            string videoPath = ofToDataPath(paths[videoId],true);
-            ofLog()<<"loading video #"<<videoId<<": "<<videoPath<<endl;
-            player.load(videoPath);
-            player.setLoopState(OF_LOOP_NONE);
-            if (player.isLoaded()) player.play();
-            outMessage.setAddress("/videoplayer/playing");
-            outMessage.addIntArg(videoId);
-            sender.sendMessage(outMessage);
+            videoId = videoId -1;
+            if (videoId >= dir.size()){
+                ofLog()<<"Invalid cue number"<<endl;
+            }
+            else {
+                videoId = ofClamp(videoId,0,dir.size());
+                string videoPath = ofToDataPath(paths[videoId],true);
+                ofLog()<<"loading video #"<<videoId<<": "<<videoPath<<endl;
+                player.load(videoPath);
+                player.setLoopState(OF_LOOP_NONE);
+                if (player.isLoaded()) player.play();
+                outMessage.setAddress("/videoplayer/playing");
+                outMessage.addIntArg(videoId);
+                sender.sendMessage(outMessage);
+            }
+
         }
         if (addr.compare("/videoplayer/stop") == 0){
             ofLog()<<"stopping video";
