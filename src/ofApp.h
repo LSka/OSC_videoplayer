@@ -11,11 +11,13 @@ class ofApp : public ofBaseApp{
 		void update();
 		void draw();
         void loadVideos();
+        void loadImages();
 
     
     int screenWidth;
     int screenHeight;
     int videoId;
+    int imgId;
     
     ofxXmlSettings settings;
         
@@ -27,11 +29,18 @@ class ofApp : public ofBaseApp{
     ofImage img;
     
     vector<string> paths;
+    vector<string> imgPaths;
     ofVideoPlayer player;
     
     bool done;
     
     ofDirectory dir;
     ofDirectory imgDir;
+    
+    ofFbo videoFbo;
+    ofFbo imgFbo;
+    
+    int videoAlpha;
+    int imgAlpha;
 		
 };
