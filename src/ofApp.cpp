@@ -87,7 +87,6 @@ void ofApp::update(){
         if (addr.compare("/videoplayer/video/stop") == 0){
             ofLog()<<"stopping video"<<endl;
             if (player.isPlaying()) player.stop();
-            ofxOscMessage m;
             outMessage.setAddress("/videoplayer/video");
             outMessage.addStringArg("stopped");
             sender.sendMessage(outMessage);
@@ -95,7 +94,6 @@ void ofApp::update(){
         if (addr.compare("/videoplayer/video/pause") == 0){
             ofLog()<<"pausing video"<<endl;
             player.setPaused(true);
-            ofxOscMessage m;
             outMessage.setAddress("/videoplayer/paused");
             outMessage.addIntArg(1);
             sender.sendMessage(outMessage);
@@ -103,7 +101,6 @@ void ofApp::update(){
         if (addr.compare("/videoplayer/video/resume") == 0){
             ofLog()<<"resuming video"<<endl;
             player.setPaused(false);
-            ofxOscMessage m;
             outMessage.setAddress("/videoplayer/video/paused");
             outMessage.addIntArg(0);
             sender.sendMessage(outMessage);
@@ -111,7 +108,6 @@ void ofApp::update(){
         if (addr.compare("/videoplayer/video/reload") == 0){
             ofLog()<<"reloading videos"<<endl;
             loadVideos();
-            ofxOscMessage m;
             outMessage.setAddress("/videoplayer/video");
             outMessage.addStringArg("loading");
             sender.sendMessage(outMessage);
@@ -119,7 +115,6 @@ void ofApp::update(){
         if (addr.compare("/videoplayer/image/reload") == 0){
             ofLog()<<"reloading images"<<endl;
             loadImages();
-            ofxOscMessage m;
             outMessage.setAddress("/videoplayer/image");
             outMessage.addStringArg("loading");
             sender.sendMessage(outMessage);
@@ -144,7 +139,6 @@ void ofApp::update(){
                     }
                 default:{}
             }
-            ofxOscMessage m;
             outMessage.setAddress("/videoplayer/video/looping");
             outMessage.addIntArg(l);
             sender.sendMessage(outMessage);
