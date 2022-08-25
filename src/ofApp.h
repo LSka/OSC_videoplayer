@@ -33,6 +33,7 @@ class ofApp : public ofBaseApp{
     ofVideoPlayer player;
     
     bool done;
+    bool imgLoaded;
     
     ofDirectory dir;
     ofDirectory imgDir;

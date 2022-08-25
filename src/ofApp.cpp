@@ -18,27 +18,23 @@ void ofApp::setup(){
          ofLog()<< "unable to load settings.xml check data/ folder" << endl;
      }
     
-    videoFbo.allocate(screenWidth, screenHeight, GL_RGBA);
-    videoFbo.begin();
-    ofClear(255,255,255, 0);
-    videoFbo.end();
+  //  videoFbo.allocate(screenWidth, screenHeight, GL_RGBA);
+  //  videoFbo.begin();
+  //  ofClear(255,255,255, 0);
+  //  videoFbo.end();
     
-    imgFbo.allocate(screenWidth, screenHeight, GL_RGBA);
-    imgFbo.begin();
-    ofClear(255,255,255, 0);
-    imgFbo.end();
+  //  imgFbo.allocate(screenWidth, screenHeight, GL_RGBA);
+  //  imgFbo.begin();
+  //  ofClear(255,255,255, 0);
+  //  imgFbo.end();
     
-    videoAlpha = 1.;
-    imgAlpha = 0.;
+    videoAlpha = 255;
+    imgAlpha = 255;
     
     loadVideos();
     loadImages();
-//     videoId = 0;
-//     string videoPath = ofToDataPath(dir.getPath(videoId),true);
-//     player.load(videoPath);
-//     player.setLoopState(OF_LOOP_NONE);
-//     player.play();
 
+    imgLoaded = false;
      
      //initialize OSC
      int oscInPort = settings.getValue("OSC:RECEIVER:PORT",6000);
@@ -64,7 +60,7 @@ void ofApp::update(){
         receiver.getNextMessage(receivedMessage);
         string addr = receivedMessage.getAddress();
         
-        if (addr.compare("/videoplayer/play") == 0){ //check the OSC address
+        if (addr.compare("/videoplayer/video/play") == 0){ //check the OSC address
             videoId = receivedMessage.getArgAsInt(0);
             videoId = videoId -1;
             if (videoId >= dir.size()){
@@ -81,24 +77,22 @@ void ofApp::update(){
                     ofClear(255,255,255,255);
                     videoFbo.end();
                     player.play();
-                    videoAlpha = 255;
-                    imgAlpha = 0;
-                    outMessage.setAddress("/videoplayer/playing");
+                    outMessage.setAddress("/videoplayer/video/playing");
                     outMessage.addIntArg(videoId+1);
                     sender.sendMessage(outMessage);
                 }
             }
 
         }
-        if (addr.compare("/videoplayer/stop") == 0){
+        if (addr.compare("/videoplayer/video/stop") == 0){
             ofLog()<<"stopping video"<<endl;
             if (player.isPlaying()) player.stop();
             ofxOscMessage m;
-            outMessage.setAddress("/videoplayer");
+            outMessage.setAddress("/videoplayer/video");
             outMessage.addStringArg("stopped");
             sender.sendMessage(outMessage);
         }
-        if (addr.compare("/videoplayer/pause") == 0){
+        if (addr.compare("/videoplayer/video/pause") == 0){
             ofLog()<<"pausing video"<<endl;
             player.setPaused(true);
             ofxOscMessage m;
@@ -106,23 +100,31 @@ void ofApp::update(){
             outMessage.addIntArg(1);
             sender.sendMessage(outMessage);
         }
-        if (addr.compare("/videoplayer/resume") == 0){
+        if (addr.compare("/videoplayer/video/resume") == 0){
             ofLog()<<"resuming video"<<endl;
             player.setPaused(false);
             ofxOscMessage m;
-            outMessage.setAddress("/videoplayer/paused");
+            outMessage.setAddress("/videoplayer/video/paused");
             outMessage.addIntArg(0);
             sender.sendMessage(outMessage);
         }
-        if (addr.compare("/videoplayer/reload") == 0){
+        if (addr.compare("/videoplayer/video/reload") == 0){
             ofLog()<<"reloading videos"<<endl;
             loadVideos();
             ofxOscMessage m;
-            outMessage.setAddress("/videoplayer");
+            outMessage.setAddress("/videoplayer/video");
             outMessage.addStringArg("loading");
             sender.sendMessage(outMessage);
         }
-        if (addr.compare("/videoplayer/loop") == 0){
+        if (addr.compare("/videoplayer/image/reload") == 0){
+            ofLog()<<"reloading images"<<endl;
+            loadImages();
+            ofxOscMessage m;
+            outMessage.setAddress("/videoplayer/image");
+            outMessage.addStringArg("loading");
+            sender.sendMessage(outMessage);
+        }
+        if (addr.compare("/videoplayer/video/loop") == 0){
             int l = receivedMessage.getArgAsInt(0);
             switch(l){
                 case 0:{
@@ -143,11 +145,11 @@ void ofApp::update(){
                 default:{}
             }
             ofxOscMessage m;
-            outMessage.setAddress("/videoplayer/looping");
+            outMessage.setAddress("/videoplayer/video/looping");
             outMessage.addIntArg(l);
             sender.sendMessage(outMessage);
         }
-        if (addr.compare("/videoplayer/image") == 0){
+        if (addr.compare("/videoplayer/image/load") == 0){
             imgId = receivedMessage.getArgAsInt(0);
             imgId = imgId -1;
             if (imgId >= imgDir.size()){
@@ -158,11 +160,16 @@ void ofApp::update(){
                 string imgPath = ofToDataPath(imgPaths[imgId],true);
                 ofLog()<<"loading image #"<<imgId+1<<": "<<imgPath<<endl;
                 img.load(imgPath);
-                videoAlpha = 0;
-                imgAlpha = 255;
-                outMessage.setAddress("/videoplayer/imageloaded");
+                imgLoaded = true;
+                outMessage.setAddress("/videoplayer/image/loaded");
                 outMessage.addIntArg(imgId+1);
                 sender.sendMessage(outMessage);
+            }
+        }
+        if (addr.compare("/videoplayer/image/clear") == 0){
+            if (img.isAllocated()){
+                img.clear();
+                imgLoaded = false;
             }
         }
         if (addr.compare("/videoplayer/image/alpha") == 0){
@@ -184,7 +191,7 @@ void ofApp::update(){
         done = false;
     }
     else if(player.getIsMovieDone() && done == false){
-        outMessage.setAddress("/videoplayer/");
+        outMessage.setAddress("/videoplayer/video");
         outMessage.addStringArg("done");
         sender.sendMessage(outMessage);
         done = true;
@@ -194,19 +201,15 @@ void ofApp::update(){
 //--------------------------------------------------------------
 void ofApp::draw(){
     if (player.isPlaying()){
-        videoFbo.begin();
-        player.draw(0, 0, videoFbo.getWidth(), videoFbo.getHeight());
-        videoFbo.end();
+        ofSetColor(255,255,255,videoAlpha);
+        player.draw(0,0,screenWidth,screenHeight);
     }
-    if (img.isAllocated()){
-        imgFbo.begin();
-        img.draw(0, 0, imgFbo.getWidth(), imgFbo.getHeight());
-        imgFbo.end();
+
+    if(imgLoaded){
+        ofSetColor(255,255,255,imgAlpha);
+        img.draw(0,0,screenWidth,screenHeight);
     }
-    ofSetColor(255,255,255,videoAlpha);
-    videoFbo.draw(0,0,screenWidth,screenHeight);
-    ofSetColor(255,255,255,imgAlpha);
-    imgFbo.draw(0,0,screenWidth,screenHeight);
+
 }
 
 void ofApp::loadVideos(){
